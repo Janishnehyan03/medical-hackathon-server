@@ -17,7 +17,7 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const profiles = await Profile.find();
-    res.json(profiles);
+    res.json({ results: profiles.length, profiles });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

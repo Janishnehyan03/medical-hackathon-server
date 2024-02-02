@@ -1,76 +1,110 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const profileSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    ref: "User",
+    required: true,
   },
   address: {
     type: String,
-    required: true
+    required: true,
   },
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   phoneNumber: {
     type: String,
-    required: true
+    required: true,
   },
   country: {
     type: String,
-    required: true
+    required: true,
   },
   state: {
     type: String,
-    required: true
+    required: true,
   },
   bloodGroup: String,
   height: Number,
   weight: Number,
   dob: {
     type: Date,
-    required: true
+    required: true,
   },
   gender: {
     type: String,
-    enum: ['male', 'female', 'other'],
-    required: true
+    enum: ["male", "female", "other"],
+    required: true,
   },
-  allergies: [{
-    type: String,
-    enum: ['peanuts', 'penicillin', 'shellfish', 'latex', 'pollen', 'dust', 'pets', 'other']
-  }],
-  medications: [{
-    type: String,
-    enum: ['aspirin', 'ibuprofen', 'acetaminophen', 'antibiotics', 'antidepressants', 'insulin', 'other']
-  }],
-  surgeries: [{
-    type: String,
-    enum: ['appendectomy', 'tonsillectomy', 'hernia repair', 'knee replacement', 'hip replacement', 'lasik surgery', 'other']
-  }],
+  allergies: [
+    {
+      type: String,
+      enum: [
+        "peanuts",
+        "penicillin",
+        "shellfish",
+        "latex",
+        "pollen",
+        "dust",
+        "pets",
+        "other",
+      ],
+      lowercase: true,
+    },
+  ],
+  medications: [
+    {
+      type: String,
+      enum: [
+        "aspirin",
+        "ibuprofen",
+        "acetaminophen",
+        "antibiotics",
+        "antidepressants",
+        "insulin",
+        "other",
+      ],
+      lowercase: true,
+    },
+  ],
+  surgeries: [
+    {
+      type: String,
+      enum: [
+        "appendectomy",
+        "tonsillectomy",
+        "hernia repair",
+        "knee replacement",
+        "hip replacement",
+        "lasik surgery",
+        "other",
+      ],
+      lowercase: true,
+    },
+  ],
   medicalHistory: String,
   emergencyContact: {
     name: String,
     relationship: String,
-    phoneNumber: String
+    phoneNumber: String,
   },
   bloodPressure: {
     systolic: Number,
-    diastolic: Number
+    diastolic: Number,
   },
   cholesterolLevel: {
     total: Number,
     hdl: Number,
-    ldl: Number
+    ldl: Number,
   },
   bloodSugarLevel: {
     fasting: Number,
-    postPrandial: Number
-  }
+    postPrandial: Number,
+  },
 });
 
-const Profile = mongoose.model('Profile', profileSchema);
+const Profile = mongoose.model("Profile", profileSchema);
 module.exports = Profile;

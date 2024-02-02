@@ -78,18 +78,54 @@ router.post("/login", async (req, res) => {
       expiresIn: "1h",
     });
 
-    res
-      .status(200)
-      .json({
-        token,
-        user: {
-          username: user.username,
-          firstName: user.firstName,
-          lastName: user.lastName,
-        },
-      });
+    res.status(200).json({
+      token,
+      user: {
+        _id: user._id,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+router.get("/checkLoggedIn", async (req, res) => {
+  try {
+    if (!req.cookies.token) {
+      return res.status(401).json({
+        error: "No token provided",
+      });
+    }
+
+    // Verify the JWT token
+    const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+
+    // Find the user by the decoded user ID
+    const user = await User.findById(decoded.userId);
+
+    // If user not found, token is invalid
+    if (!user) {
+      return res.status(401).json({
+        error: "Invalid token",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      user: {
+        _id: user._id,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+    });
+  } catch (error) {
+    // Handle errors
+    res.status(400).json({
+      error,
+    });
   }
 });
 

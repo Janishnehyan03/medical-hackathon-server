@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 // routes
@@ -23,6 +24,7 @@ app.use(
   })
 ); // Enable Cross-Origin Resource Sharing
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 // Routes
 app.get("/", (req, res) => {
