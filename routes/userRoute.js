@@ -75,9 +75,12 @@ router.post("/login", async (req, res) => {
 
     // Generate a JWT token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "11h",
     });
-
+    res.cookie("token", token, {
+      httpOnly: true,
+      // Add other cookie options as needed, such as secure: true for HTTPS
+    });
     res.status(200).json({
       token,
       user: {
@@ -93,27 +96,25 @@ router.post("/login", async (req, res) => {
 });
 router.get("/checkLoggedIn", async (req, res) => {
   try {
-    if (!req.cookies.token) {
+    if (
+      !req.headers.authorization ||
+      !req.headers.authorization.startsWith("Bearer")
+    ) {
       return res.status(401).json({
         error: "No token provided",
       });
     }
 
-    // Verify the JWT token
-    const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-
-    // Find the user by the decoded user ID
+    // Extract the token
+    const token = req.headers.authorization
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId);
-
-    // If user not found, token is invalid
     if (!user) {
       return res.status(401).json({
         error: "Invalid token",
       });
     }
-
     res.status(200).json({
-      success: true,
       user: {
         _id: user._id,
         username: user.username,

@@ -15,7 +15,7 @@ const profileSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  phoneNumber: {
+  phone: {
     type: String,
     required: true,
   },
@@ -86,11 +86,7 @@ const profileSchema = new mongoose.Schema({
     },
   ],
   medicalHistory: String,
-  emergencyContact: {
-    name: String,
-    relationship: String,
-    phoneNumber: String,
-  },
+
   bloodPressure: {
     systolic: Number,
     diastolic: Number,

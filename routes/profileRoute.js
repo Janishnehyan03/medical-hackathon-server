@@ -1,25 +1,30 @@
 const express = require("express");
 const router = express.Router();
 const Profile = require("../models//profileModel"); // Assuming you have a Profile model
-
-// Create a new profile
-router.post("/", async (req, res) => {
+const { protect } = require("../middlewares/userMiddleware");
+router.post("/", protect, async (req, res) => {
   try {
     const patientData = req.body;
-    let profileExists = await Profile.findOne({ email: patientData.email });
+    const profileExists = await Profile.findOne({ email: patientData.email });
+
     if (profileExists) {
-      const advice = provideMedicalAdvice(patientData);
+      const advice = generatePatientAdvice(patientData);
       return res
-        .status(400)
-        .json({ advice, message: "Profile already exists" });
+        .status(200)
+        .json({ message: "Profile already exists", advice });
     } else {
-      const newProfile = new Profile(patientData);
-      const savedProfile = await newProfile.save();
-      const advice = provideMedicalAdvice(patientData);
-      res.status(201).json(savedProfile, advice);
+      // Add userId to patientData
+      patientData.userId = req.user._id;
+
+      // Create new profile
+      const newProfile = await Profile.create(patientData);
+      const advice = generatePatientAdvice(patientData);
+
+      return res.status(201).json({ advice, newProfile });
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error creating profile:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 });
 
@@ -81,57 +86,85 @@ async function getProfile(req, res, next) {
   res.profile = profile;
   next();
 }
+// Function to handle patient advice based on profile data
+function generatePatientAdvice(profile) {
+  // Initialize an object to store advice and scores
+  const advice = {};
 
-function provideMedicalAdvice(patientData) {
+  // Extract relevant profile data
   const {
-    address,
-    email,
-    phone,
-    country,
-    state,
     bloodGroup,
     height,
     weight,
-    dob,
-    gender,
     allergies,
     medications,
     surgeries,
-    medicalHistory,
-    emergencyContact,
     bloodPressure,
     cholesterolLevel,
     bloodSugarLevel,
-  } = patientData;
+  } = profile;
 
-  let medicalAdvice = {
-    diseases: [],
-    medications: [],
-    condition: "",
-    advice: "",
-  };
+  // Generate advice based on the patient's profile data
+  // Example logic, you can extend and customize as needed
 
-  // Determine condition based on patient's weight
-  if (weight > 100) {
-    medicalAdvice.condition = "Overweight";
-    medicalAdvice.advice =
-      "Your weight is above the healthy range. It is recommended to consult with a dietitian to manage your weight.";
+  // Blood group advice
+  if (bloodGroup === "AB+") {
+    advice.bloodGroupAdvice = "AB+ is a universal recipient blood type.";
+  } else if (bloodGroup === "O-") {
+    advice.bloodGroupAdvice = "O- is a universal donor blood type.";
+  } else {
+    advice.bloodGroupAdvice =
+      "Maintain awareness of your blood type for potential transfusions.";
   }
 
-  // Check for high blood pressure
-  if (bloodPressure.systolic !== "" && bloodPressure.diastolic !== "") {
-    const systolic = parseInt(bloodPressure.systolic);
-    const diastolic = parseInt(bloodPressure.diastolic);
-    if (systolic > 130 || diastolic > 80) {
-      medicalAdvice.condition = "High Blood Pressure";
-      medicalAdvice.advice =
-        "Your blood pressure is high. Please consult with a healthcare professional for further evaluation and management.";
-    }
+  // Calculate BMI and provide advice based on weight and height
+  const bmi = weight / (height / 100) ** 2;
+  if (bmi < 18.5) {
+    advice.bmiAdvice =
+      "Your BMI indicates that you are underweight. Consider consulting a nutritionist.";
+  } else if (bmi >= 25) {
+    advice.bmiAdvice =
+      "Your BMI indicates that you are overweight. Consider adopting a healthier lifestyle.";
+  } else {
+    advice.bmiAdvice =
+      "Your BMI is within a healthy range. Keep up the good work!";
   }
 
-  // Add more conditions based on patient data
+  // Provide advice based on allergies
+  if (allergies.length > 0) {
+    advice.allergyAdvice =
+      "Be cautious of allergens and ensure proper management of known allergies.";
+  } else {
+    advice.allergyAdvice =
+      "No known allergies. Continue to maintain a healthy lifestyle.";
+  }
 
-  return medicalAdvice;
+  // Provide advice based on medications
+  if (medications.length > 0) {
+    advice.medicationAdvice = "Ensure compliance with prescribed medications.";
+  } else {
+    advice.medicationAdvice =
+      "No medications currently prescribed. Stay healthy!";
+  }
+
+  // Provide advice based on past surgeries
+  if (surgeries.length > 0) {
+    advice.surgeryAdvice =
+      "Follow post-operative care instructions and attend follow-up appointments.";
+  } else {
+    advice.surgeryAdvice =
+      "No history of surgeries. Maintain overall well-being.";
+  }
+
+  // Calculate and provide scores for blood pressure, cholesterol, and blood sugar levels
+  advice.bloodPressureScore =
+    (bloodPressure.systolic + bloodPressure.diastolic) / 2;
+  advice.cholesterolScore = cholesterolLevel.total;
+  advice.bloodSugarScore =
+    (bloodSugarLevel.fasting + bloodSugarLevel.postPrandial) / 2;
+
+  // Return the advice object
+  return advice;
 }
 
 module.exports = router;
