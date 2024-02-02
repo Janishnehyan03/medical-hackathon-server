@@ -5,9 +5,19 @@ const Profile = require("../models//profileModel"); // Assuming you have a Profi
 // Create a new profile
 router.post("/", async (req, res) => {
   try {
-    const profile = new Profile(req.body);
-    await profile.save();
-    res.status(201).json(profile);
+    const patientData = req.body;
+    let profileExists = await Profile.findOne({ email: patientData.email });
+    if (profileExists) {
+      const advice = provideMedicalAdvice(patientData);
+      return res
+        .status(400)
+        .json({ advice, message: "Profile already exists" });
+    } else {
+      const newProfile = new Profile(patientData);
+      const savedProfile = await newProfile.save();
+      const advice = provideMedicalAdvice(patientData);
+      res.status(201).json(savedProfile, advice);
+    }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -70,6 +80,58 @@ async function getProfile(req, res, next) {
 
   res.profile = profile;
   next();
+}
+
+function provideMedicalAdvice(patientData) {
+  const {
+    address,
+    email,
+    phone,
+    country,
+    state,
+    bloodGroup,
+    height,
+    weight,
+    dob,
+    gender,
+    allergies,
+    medications,
+    surgeries,
+    medicalHistory,
+    emergencyContact,
+    bloodPressure,
+    cholesterolLevel,
+    bloodSugarLevel,
+  } = patientData;
+
+  let medicalAdvice = {
+    diseases: [],
+    medications: [],
+    condition: "",
+    advice: "",
+  };
+
+  // Determine condition based on patient's weight
+  if (weight > 100) {
+    medicalAdvice.condition = "Overweight";
+    medicalAdvice.advice =
+      "Your weight is above the healthy range. It is recommended to consult with a dietitian to manage your weight.";
+  }
+
+  // Check for high blood pressure
+  if (bloodPressure.systolic !== "" && bloodPressure.diastolic !== "") {
+    const systolic = parseInt(bloodPressure.systolic);
+    const diastolic = parseInt(bloodPressure.diastolic);
+    if (systolic > 130 || diastolic > 80) {
+      medicalAdvice.condition = "High Blood Pressure";
+      medicalAdvice.advice =
+        "Your blood pressure is high. Please consult with a healthcare professional for further evaluation and management.";
+    }
+  }
+
+  // Add more conditions based on patient data
+
+  return medicalAdvice;
 }
 
 module.exports = router;
