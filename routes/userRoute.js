@@ -96,7 +96,6 @@ router.post("/login", async (req, res) => {
 });
 router.post("/checkLoggedIn", async (req, res) => {
   try {
-    console.log(req.body);
     if (
       !req.body.token
     ) {

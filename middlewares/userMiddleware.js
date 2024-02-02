@@ -3,14 +3,14 @@ const jwt = require("jsonwebtoken");
 
 exports.protect = async (req, res, next) => {
   try {
-    if (!req.cookies.token) {
+    if (!req.body.token) {
       return res.status(401).json({
         error: "No token provided",
       });
     }
 
     // Verify the JWT token
-    const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(req.body.token, process.env.JWT_SECRET);
 
     // Find the user by the decoded user ID
     const user = await User.findById(decoded.userId);
