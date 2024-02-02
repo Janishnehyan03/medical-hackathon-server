@@ -8,6 +8,7 @@ require("dotenv").config();
 
 // routes
 const userRoute = require("./routes/userRoute");
+const profileRoute = require("./routes/profileRoute");
 
 // Initialize Express app
 const app = express();
@@ -15,7 +16,12 @@ const app = express();
 // Middleware
 app.use(express.json()); // Parse JSON bodies
 app.use(morgan("dev")); // Log HTTP requests
-app.use(cors()); // Enable Cross-Origin Resource Sharing
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+); // Enable Cross-Origin Resource Sharing
 app.use(bodyParser.json());
 
 // Routes
@@ -35,6 +41,7 @@ mongoose
 
 //   routes
 app.use("/api/users", userRoute);
+app.use("/api/profiles", profileRoute);
 
 // Start the server
 const PORT = process.env.PORT || 5000;
