@@ -4,6 +4,7 @@ const Profile = require("../models//profileModel"); // Assuming you have a Profi
 const { protect } = require("../middlewares/userMiddleware");
 router.post("/", protect, async (req, res) => {
   try {
+    console.log(req.body);
     const patientData = req.body;
     const profileExists = await Profile.findOne({ email: patientData.email });
 
