@@ -94,19 +94,18 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-router.get("/checkLoggedIn", async (req, res) => {
-  console.log(req.cookies);
+router.post("/checkLoggedIn", async (req, res) => {
   try {
+    console.log(req.body);
     if (
-      !req.cookies.token
+      !req.body.token
     ) {
       return res.status(401).json({
         error: "No token provided",
       });
     }
-
     // Extract the token
-    const token = req.cookies.token;
+    const token = req.body.token;
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId);
     if (!user) {
