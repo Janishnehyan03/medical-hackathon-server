@@ -95,10 +95,10 @@ router.post("/login", async (req, res) => {
   }
 });
 router.get("/checkLoggedIn", async (req, res) => {
+  console.log(req.cookies);
   try {
     if (
-      !req.headers.authorization ||
-      !req.headers.authorization.startsWith("Bearer")
+      !req.cookies.token
     ) {
       return res.status(401).json({
         error: "No token provided",
@@ -106,7 +106,7 @@ router.get("/checkLoggedIn", async (req, res) => {
     }
 
     // Extract the token
-    const token = req.headers.authorization
+    const token = req.cookies.token;
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId);
     if (!user) {
@@ -123,7 +123,7 @@ router.get("/checkLoggedIn", async (req, res) => {
       },
     });
   } catch (error) {
-    // Handle errors
+    console.log(error);
     res.status(400).json({
       error,
     });
