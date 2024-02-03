@@ -173,7 +173,7 @@ router.post("/", protect, async (req, res) => {
 // Get all profiles
 router.get("/", async (req, res) => {
   try {
-    const profiles = await Profile.find();
+    const profiles = await Profile.find().populate("userId");
     res.json({ results: profiles.length, profiles });
   } catch (error) {
     res.status(500).json({ message: error.message });
