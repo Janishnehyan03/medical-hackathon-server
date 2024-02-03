@@ -9,10 +9,8 @@ exports.protect = async (req, res, next) => {
       });
     }
 
-    // Verify the JWT token
     const decoded = jwt.verify(req.body.token, process.env.JWT_SECRET);
 
-    // Find the user by the decoded user ID
     const user = await User.findById(decoded.userId);
 
     // If user not found, token is invalid
