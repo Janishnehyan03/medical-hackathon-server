@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post("/register", async (req, res) => {
   try {
-    const { firstName, lastName, username, password, confirmPassword } =
+    const { firstName, lastName, username, password, confirmPassword , email } =
       req.body;
 
     // Check if username already exists
@@ -29,6 +29,7 @@ router.post("/register", async (req, res) => {
       lastName,
       username,
       password: hashedPassword,
+      email:email,
       confirmPassword: hashedPassword, // You might not need confirmPassword stored in the database
     });
 
