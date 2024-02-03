@@ -5,9 +5,8 @@ const { protect } = require("../middlewares/userMiddleware");
 
 async function generatePatientAdvice(profile) {
   try {
-    const advice = {}; // Initialize advice object
+    const advice = {};
 
-    // Extract relevant profile data
     const {
       bloodGroup,
       height,
@@ -155,10 +154,8 @@ router.post("/", protect, async (req, res) => {
       const advice = await generatePatientAdvice(req.body);
       return res.status(201).json({ advice });
     } else {
-      // Add userId to patientData
-      patientData.userId = req.user._id;
-
-      // Create new profile
+      let user = await Profile.findOne({ email: patientData.email });
+      patientData.userId = user._id;
       const newProfile = await Profile.create(patientData);
       const advice = await generatePatientAdvice(req.body);
 
