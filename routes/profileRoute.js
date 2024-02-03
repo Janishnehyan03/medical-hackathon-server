@@ -180,7 +180,7 @@ router.get("/", async (req, res) => {
 // Get a single profile
 router.post("/my-data", protect, async (req, res) => {
   try {
-    const profile = await Profile.findOne({ userId: req.user._id });
+    const profile = await Profile.findOne({ userId: req.user._id }).populate('userId')
     if (!profile) {
       return res.status(404).json({ message: "Profile not found" });
     }
