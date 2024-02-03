@@ -31,7 +31,7 @@ const profileSchema = new mongoose.Schema({
   height: Number,
   weight: Number,
   dob: {
-    type: Date,
+    type: String,
     // required: true,
   },
   gender: {
